@@ -1,0 +1,662 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dineug/erd-editor/main/json-schema/schema.json",
+  "version": "3.0.0",
+  "settings": {
+    "width": 2000,
+    "height": 2000,
+    "scrollTop": -32,
+    "scrollLeft": -336.8017,
+    "zoomLevel": 0.88,
+    "show": 431,
+    "database": 4,
+    "databaseName": "",
+    "canvasType": "ERD",
+    "language": 1,
+    "tableNameCase": 4,
+    "columnNameCase": 2,
+    "bracketType": 1,
+    "relationshipDataTypeSync": true,
+    "relationshipOptimization": false,
+    "columnOrder": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "maxWidthComment": -1,
+    "ignoreSaveSettings": 0
+  },
+  "doc": {
+    "tableIds": [
+      "QlMzCxzidGHPlTFf3s5pU",
+      "8hKn0H91JXioHclC2pXOl",
+      "R6RAgvw5lINa9WV3h44RW"
+    ],
+    "relationshipIds": [],
+    "indexIds": [],
+    "memoIds": []
+  },
+  "collections": {
+    "tableEntities": {
+      "QlMzCxzidGHPlTFf3s5pU": {
+        "id": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "chat",
+        "comment": "",
+        "columnIds": [
+          "HH4QXh6T1PGkeeTSqX4h4",
+          "49pWOEz6DKHwuXrPJi_Rh",
+          "DVJ7NUHsIQBjL4vps8ujY",
+          "HJ_xZFouEemJC3eM4XtNn",
+          "JC6vFyyYP9ySu5e2ADglF",
+          "WjLNDRDtjQ_CrKBQlseQC"
+        ],
+        "seqColumnIds": [
+          "HH4QXh6T1PGkeeTSqX4h4",
+          "49pWOEz6DKHwuXrPJi_Rh",
+          "DVJ7NUHsIQBjL4vps8ujY",
+          "HJ_xZFouEemJC3eM4XtNn",
+          "MH0O_A2gsvD901oXIGUc0",
+          "JC6vFyyYP9ySu5e2ADglF",
+          "WjLNDRDtjQ_CrKBQlseQC"
+        ],
+        "ui": {
+          "x": 847,
+          "y": 126,
+          "zIndex": 2,
+          "widthName": 60,
+          "widthComment": 60,
+          "color": ""
+        },
+        "meta": {
+          "updateAt": 1729848124915,
+          "createAt": 1729845196128
+        }
+      },
+      "8hKn0H91JXioHclC2pXOl": {
+        "id": "8hKn0H91JXioHclC2pXOl",
+        "name": "chat_room",
+        "comment": "",
+        "columnIds": [
+          "2v6n5bI7XoREYMg4ZzS69",
+          "HIWbnZqX8J2EM306SLebC"
+        ],
+        "seqColumnIds": [
+          "2v6n5bI7XoREYMg4ZzS69",
+          "HIWbnZqX8J2EM306SLebC",
+          "rth1cXGwNwv2NLM_Kc9ER",
+          "Tvh0Ib9meMdg41KnxiPOW",
+          "zOLNBYCI-bYEKYpoM89C-"
+        ],
+        "ui": {
+          "x": 353,
+          "y": 135,
+          "zIndex": 82,
+          "widthName": 60,
+          "widthComment": 60,
+          "color": ""
+        },
+        "meta": {
+          "updateAt": 1729847106155,
+          "createAt": 1729846648990
+        }
+      },
+      "R6RAgvw5lINa9WV3h44RW": {
+        "id": "R6RAgvw5lINa9WV3h44RW",
+        "name": "chat_unread",
+        "comment": "",
+        "columnIds": [
+          "r9MSp0SrT4wjErbE3BQGb",
+          "HCtCKOrijrliRoHcY3SNv",
+          "zESQLv3Vl7I89okeATBKC",
+          "JOUFdpXsitXpnSo_WHfUW"
+        ],
+        "seqColumnIds": [
+          "r9MSp0SrT4wjErbE3BQGb",
+          "HCtCKOrijrliRoHcY3SNv",
+          "zESQLv3Vl7I89okeATBKC",
+          "JOUFdpXsitXpnSo_WHfUW"
+        ],
+        "ui": {
+          "x": 312,
+          "y": 292,
+          "zIndex": 155,
+          "widthName": 67,
+          "widthComment": 60,
+          "color": ""
+        },
+        "meta": {
+          "updateAt": 1729847162486,
+          "createAt": 1729847055344
+        }
+      }
+    },
+    "tableColumnEntities": {
+      "HH4QXh6T1PGkeeTSqX4h4": {
+        "id": "HH4QXh6T1PGkeeTSqX4h4",
+        "tableId": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "chat_id",
+        "comment": "채팅내역ID",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 10,
+        "ui": {
+          "keys": 1,
+          "widthName": 60,
+          "widthComment": 62,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729845274791,
+          "createAt": 1729845204440
+        }
+      },
+      "49pWOEz6DKHwuXrPJi_Rh": {
+        "id": "49pWOEz6DKHwuXrPJi_Rh",
+        "tableId": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "room_id",
+        "comment": "채팅방ID",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729845357559,
+          "createAt": 1729845230563
+        }
+      },
+      "DVJ7NUHsIQBjL4vps8ujY": {
+        "id": "DVJ7NUHsIQBjL4vps8ujY",
+        "tableId": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "sender",
+        "comment": "보낸사람ID",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 62,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729845359363,
+          "createAt": 1729845256564
+        }
+      },
+      "HJ_xZFouEemJC3eM4XtNn": {
+        "id": "HJ_xZFouEemJC3eM4XtNn",
+        "tableId": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "is_read",
+        "comment": "읽었는지 여부",
+        "dataType": "BOOL",
+        "default": "false",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 77,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729845386090,
+          "createAt": 1729845361749
+        }
+      },
+      "MH0O_A2gsvD901oXIGUc0": {
+        "id": "MH0O_A2gsvD901oXIGUc0",
+        "tableId": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729845388964,
+          "createAt": 1729845388964
+        }
+      },
+      "2v6n5bI7XoREYMg4ZzS69": {
+        "id": "2v6n5bI7XoREYMg4ZzS69",
+        "tableId": "8hKn0H91JXioHclC2pXOl",
+        "name": "room_id",
+        "comment": "채팅방ID",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 10,
+        "ui": {
+          "keys": 1,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847095908,
+          "createAt": 1729846656172
+        }
+      },
+      "HIWbnZqX8J2EM306SLebC": {
+        "id": "HIWbnZqX8J2EM306SLebC",
+        "tableId": "8hKn0H91JXioHclC2pXOl",
+        "name": "user_list",
+        "comment": "참여유저ID배열",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 86,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729846875118,
+          "createAt": 1729846826659
+        }
+      },
+      "rth1cXGwNwv2NLM_Kc9ER": {
+        "id": "rth1cXGwNwv2NLM_Kc9ER",
+        "tableId": "8hKn0H91JXioHclC2pXOl",
+        "name": "unread_last_msg",
+        "comment": "안 읽은 메시지 중 최근 메시지",
+        "dataType": "VARCHAR",
+        "default": "null",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 90,
+          "widthComment": 162,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729846945665,
+          "createAt": 1729846889091
+        }
+      },
+      "Tvh0Ib9meMdg41KnxiPOW": {
+        "id": "Tvh0Ib9meMdg41KnxiPOW",
+        "tableId": "8hKn0H91JXioHclC2pXOl",
+        "name": "unread_msg_cnt",
+        "comment": "안 읽은 메시지 개수",
+        "dataType": "NUMERIC",
+        "default": "0",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 88,
+          "widthComment": 108,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729846949165,
+          "createAt": 1729846912897
+        }
+      },
+      "zOLNBYCI-bYEKYpoM89C-": {
+        "id": "zOLNBYCI-bYEKYpoM89C-",
+        "tableId": "8hKn0H91JXioHclC2pXOl",
+        "name": "",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847052707,
+          "createAt": 1729847052707
+        }
+      },
+      "r9MSp0SrT4wjErbE3BQGb": {
+        "id": "r9MSp0SrT4wjErbE3BQGb",
+        "tableId": "R6RAgvw5lINa9WV3h44RW",
+        "name": "user_id",
+        "comment": "기준이 되는 유저 ID",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 10,
+        "ui": {
+          "keys": 1,
+          "widthName": 60,
+          "widthComment": 107,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847094246,
+          "createAt": 1729847078008
+        }
+      },
+      "zESQLv3Vl7I89okeATBKC": {
+        "id": "zESQLv3Vl7I89okeATBKC",
+        "tableId": "R6RAgvw5lINa9WV3h44RW",
+        "name": "unread_last_msg",
+        "comment": "안 읽은 메시지 중 최근 메시지",
+        "dataType": "VARCHAR",
+        "default": "null",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 90,
+          "widthComment": 162,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847099875,
+          "createAt": 1729847098871
+        }
+      },
+      "JOUFdpXsitXpnSo_WHfUW": {
+        "id": "JOUFdpXsitXpnSo_WHfUW",
+        "tableId": "R6RAgvw5lINa9WV3h44RW",
+        "name": "unread_msg_cnt",
+        "comment": "안 읽은 메시지 개수",
+        "dataType": "NUMERIC",
+        "default": "0",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 88,
+          "widthComment": 108,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847099875,
+          "createAt": 1729847099065
+        }
+      },
+      "HCtCKOrijrliRoHcY3SNv": {
+        "id": "HCtCKOrijrliRoHcY3SNv",
+        "tableId": "R6RAgvw5lINa9WV3h44RW",
+        "name": "room_id",
+        "comment": "채팅방ID",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847138595,
+          "createAt": 1729847126380
+        }
+      },
+      "JC6vFyyYP9ySu5e2ADglF": {
+        "id": "JC6vFyyYP9ySu5e2ADglF",
+        "tableId": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "msg",
+        "comment": "채팅메시지",
+        "dataType": "VARCHAR",
+        "default": "\"\"",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 62,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847181230,
+          "createAt": 1729847168984
+        }
+      },
+      "WjLNDRDtjQ_CrKBQlseQC": {
+        "id": "WjLNDRDtjQ_CrKBQlseQC",
+        "tableId": "QlMzCxzidGHPlTFf3s5pU",
+        "name": "created_at",
+        "comment": "채팅보낸 시간",
+        "dataType": "TIMESTAMP",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 77,
+          "widthDataType": 65,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1729847197942,
+          "createAt": 1729847182675
+        }
+      }
+    },
+    "relationshipEntities": {},
+    "indexEntities": {},
+    "indexColumnEntities": {},
+    "memoEntities": {}
+  },
+  "lww": {
+    "QlMzCxzidGHPlTFf3s5pU": [
+      "tableEntities",
+      1729845196127,
+      -1,
+      {
+        "name": 1729845240780
+      }
+    ],
+    "HH4QXh6T1PGkeeTSqX4h4": [
+      "tableColumnEntities",
+      1729845204439,
+      -1,
+      {
+        "name": 1729845261176,
+        "dataType": 1729845219255,
+        "options(notNull)": 1729845220083,
+        "options(primaryKey)": 1729845269641,
+        "comment": 1729845274791
+      }
+    ],
+    "49pWOEz6DKHwuXrPJi_Rh": [
+      "tableColumnEntities",
+      1729845230562,
+      -1,
+      {
+        "name": 1729845265815,
+        "comment": 1729845346708,
+        "options(notNull)": 1729845354188,
+        "dataType": 1729845357558
+      }
+    ],
+    "DVJ7NUHsIQBjL4vps8ujY": [
+      "tableColumnEntities",
+      1729845256563,
+      -1,
+      {
+        "name": 1729845342881,
+        "comment": 1729845349981,
+        "options(notNull)": 1729845354686,
+        "dataType": 1729845359363
+      }
+    ],
+    "HJ_xZFouEemJC3eM4XtNn": [
+      "tableColumnEntities",
+      1729845361748,
+      -1,
+      {
+        "name": 1729845368161,
+        "dataType": 1729845379645,
+        "options(notNull)": 1729845380737,
+        "default": 1729845381875,
+        "comment": 1729845386089
+      }
+    ],
+    "MH0O_A2gsvD901oXIGUc0": [
+      "tableColumnEntities",
+      1729845388963,
+      1729845507691,
+      {}
+    ],
+    "8hKn0H91JXioHclC2pXOl": [
+      "tableEntities",
+      1729846648989,
+      -1,
+      {
+        "name": 1729846654487
+      }
+    ],
+    "2v6n5bI7XoREYMg4ZzS69": [
+      "tableColumnEntities",
+      1729846656171,
+      -1,
+      {
+        "name": 1729846794726,
+        "dataType": 1729846797277,
+        "options(notNull)": 1729846798230,
+        "comment": 1729846801915,
+        "options(primaryKey)": 1729847095908
+      }
+    ],
+    "HIWbnZqX8J2EM306SLebC": [
+      "tableColumnEntities",
+      1729846826659,
+      -1,
+      {
+        "name": 1729846859159,
+        "dataType": 1729846863695,
+        "options(notNull)": 1729846864809,
+        "comment": 1729846875118
+      }
+    ],
+    "rth1cXGwNwv2NLM_Kc9ER": [
+      "tableColumnEntities",
+      1729846889091,
+      1729847103307,
+      {
+        "name": 1729846900763,
+        "dataType": 1729846902942,
+        "comment": 1729846909918,
+        "default": 1729846945665
+      }
+    ],
+    "Tvh0Ib9meMdg41KnxiPOW": [
+      "tableColumnEntities",
+      1729846912897,
+      1729847104217,
+      {
+        "name": 1729846919779,
+        "dataType": 1729846926707,
+        "default": 1729846929664,
+        "comment": 1729846949164
+      }
+    ],
+    "zOLNBYCI-bYEKYpoM89C-": [
+      "tableColumnEntities",
+      1729847052707,
+      1729847054613,
+      {}
+    ],
+    "R6RAgvw5lINa9WV3h44RW": [
+      "tableEntities",
+      1729847055344,
+      -1,
+      {
+        "name": 1729847076622
+      }
+    ],
+    "r9MSp0SrT4wjErbE3BQGb": [
+      "tableColumnEntities",
+      1729847078007,
+      -1,
+      {
+        "name": 1729847083932,
+        "comment": 1729847088822,
+        "dataType": 1729847091794,
+        "options(notNull)": 1729847092990,
+        "options(primaryKey)": 1729847094245
+      }
+    ],
+    "zESQLv3Vl7I89okeATBKC": [
+      "tableColumnEntities",
+      1729847098870,
+      -1,
+      {
+        "name": 1729847099874,
+        "dataType": 1729847099874,
+        "options(notNull)": 1729847099874,
+        "default": 1729847099874,
+        "comment": 1729847099874
+      }
+    ],
+    "JOUFdpXsitXpnSo_WHfUW": [
+      "tableColumnEntities",
+      1729847099064,
+      -1,
+      {
+        "name": 1729847099874,
+        "dataType": 1729847099874,
+        "options(notNull)": 1729847099874,
+        "default": 1729847099874,
+        "comment": 1729847099874
+      }
+    ],
+    "HCtCKOrijrliRoHcY3SNv": [
+      "tableColumnEntities",
+      1729847126379,
+      -1,
+      {
+        "name": 1729847130106,
+        "dataType": 1729847132458,
+        "options(notNull)": 1729847134620,
+        "comment": 1729847138595
+      }
+    ],
+    "JC6vFyyYP9ySu5e2ADglF": [
+      "tableColumnEntities",
+      1729847168984,
+      -1,
+      {
+        "name": 1729847171007,
+        "dataType": 1729847173325,
+        "options(notNull)": 1729847175353,
+        "default": 1729847178429,
+        "comment": 1729847181229
+      }
+    ],
+    "WjLNDRDtjQ_CrKBQlseQC": [
+      "tableColumnEntities",
+      1729847182674,
+      -1,
+      {
+        "name": 1729847187338,
+        "dataType": 1729847190955,
+        "options(notNull)": 1729847192233,
+        "comment": 1729847197942
+      }
+    ]
+  }
+}

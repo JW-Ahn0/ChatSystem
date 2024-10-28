@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSearchParams } from "react-router-dom";
-
+import "./Chat.css";
 const SERVER_URL = "http://59.8.137.118:5172"; // 서버 주소
 
 const Chat: React.FC = () => {
@@ -13,8 +13,11 @@ const Chat: React.FC = () => {
   const [targetId, setTargetId] = useState<string>("");
   const [inputMessage, setInputMessage] = useState<string>("");
   const [messages, setMessages] = useState<
-    { senderId: string; message: string }[]
+    { senderId: string; message: string; isRead: boolean; createdAt: Date }[]
   >([]);
+
+  // 스크롤을 마지막 메시지로 유지하기 위한 참조값
+  const chatBoxRef = useRef<HTMLDivElement>(null);
 
   // 소켓 초기화 및 연결 설정
   useEffect(() => {
@@ -35,6 +38,13 @@ const Chat: React.FC = () => {
     };
   }, []);
 
+  // 메시지를 보낸 후 스크롤을 마지막 메시지로 이동
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   // 메시지 전송
   const sendMessage = () => {
     if (socket && inputMessage.trim() && targetId) {
@@ -45,35 +55,57 @@ const Chat: React.FC = () => {
       });
       setMessages((prevMessages) => [
         ...prevMessages,
-        { senderId: userId, message: inputMessage },
+        {
+          senderId: userId,
+          message: inputMessage,
+          isRead: false,
+          createdAt: new Date(),
+        },
       ]);
       setInputMessage("");
     }
   };
 
   return (
-    <div>
+    <div className="chat-container">
       <h1>1:1 실시간 채팅</h1>
-      <input
-        type="text"
-        value={targetId}
-        onChange={(e) => setTargetId(e.target.value)}
-        placeholder="타겟 ID 입력"
-      />
-      <input
-        type="text"
-        value={inputMessage}
-        onChange={(e) => setInputMessage(e.target.value)}
-        placeholder="메시지를 입력하세요"
-      />
-      <button onClick={sendMessage}>전송</button>
-
-      <div className="chat-box">
+      <div className="chat-box" ref={chatBoxRef}>
         {messages.map((msg, index) => (
-          <p key={index}>
-            <strong>{msg.senderId}:</strong> {msg.message}
-          </p>
+          <div
+            key={index}
+            className={`message ${
+              msg.senderId === userId ? "my-message" : "other-message"
+            }`}
+          >
+            <p className="sender">{msg.senderId}</p>
+            <p className="text">{msg.message}</p>
+            <p className="timestamp">
+              {msg.createdAt.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+            <p className="is-read">
+              {msg.isRead ? "" : "1"} {/* 읽었는지 여부 표시 */}
+            </p>
+          </div>
         ))}
+      </div>
+      <div className="input-area">
+        <input
+          type="text"
+          value={targetId}
+          onChange={(e) => setTargetId(e.target.value)}
+          placeholder="타겟 ID 입력"
+        />
+        <input
+          type="text"
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)}
+          placeholder="메시지를 입력하세요"
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <button onClick={sendMessage}>전송</button>
       </div>
     </div>
   );

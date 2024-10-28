@@ -45,10 +45,12 @@ model ChatRoom {
 }
 
 model ChatUnread {
-  user_id         String @id @map("_id") // 각 유저별 안 읽은 메시지 정보
-  room_id         String
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB 고유 식별자
+  user_id        String
+  room_id        String
   unread_last_msg String?
-  unread_msg_cnt  Int? @default(0)
+  unread_msg_cnt Int?      @default(0)
 
-  @@index([room_id], name: "idx_room_id_unread") // 채팅방별 인덱스 설정
+  @@unique([user_id, room_id], name: "unique_user_room") // 복합 고유 인덱스 설정
+  @@index([room_id], name: "idx_room_id_unread")         // 채팅방별 인덱스
 }
