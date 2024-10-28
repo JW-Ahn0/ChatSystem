@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
 import ChatMsg from "./ChatMsg";
 
 const meta = {
-  title: "ChatMsg",
+  title: "Features/Chat/ChatMsg",
   component: ChatMsg,
   tags: ["autodocs"],
 } satisfies Meta<typeof ChatMsg>;
@@ -11,7 +10,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const DefaultOther: Story = {
+export const Other: Story = {
   args: {
     msg: "안녕하세요 반갑습니다.",
     isMe: false,
@@ -21,7 +20,7 @@ export const DefaultOther: Story = {
   },
 };
 
-export const DefaultMe: Story = {
+export const Me: Story = {
   args: {
     msg: "네 안녕하세요 무슨 일이시죠?",
     isMe: true,

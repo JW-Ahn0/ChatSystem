@@ -21,6 +21,11 @@ const ChatMsgWrapper = styled.div`
     background-color: var(--color-gray-light);
   }
 
+  /* other 인 경우 위치 조정*/
+  &.other {
+    transform: translate(45px, -15px);
+  }
+
   .time {
     font-size: 8px;
     color: var(--color-chat-gray);

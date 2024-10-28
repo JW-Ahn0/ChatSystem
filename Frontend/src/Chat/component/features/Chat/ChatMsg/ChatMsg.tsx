@@ -29,7 +29,7 @@ const ChatMsg = ({
   });
 
   return (
-    <ChatMsgWrapper>
+    <ChatMsgWrapper className={msgClass}>
       <div className="msg--info--con">
         <span className={`${textAlignClass} ${isReadClass}`}></span>
         {isLastMsg && <span className="time">{time}</span>}
