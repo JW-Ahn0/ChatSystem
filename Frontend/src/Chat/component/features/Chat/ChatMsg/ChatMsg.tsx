@@ -1,3 +1,4 @@
+import { convertDate2Time } from "../../../../../utils/dateUtil";
 import ChatMsgWrapper from "./ChatMsg.styles";
 
 interface ChatMsgProps {
@@ -23,10 +24,7 @@ const ChatMsg = ({
   const textAlignClass = isMe ? "text--end" : "text--start";
   const isReadClass = isRead ? "" : "not--read";
 
-  const time = creadtedAt.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const time = convertDate2Time(creadtedAt);
 
   return (
     <ChatMsgWrapper className={msgClass}>

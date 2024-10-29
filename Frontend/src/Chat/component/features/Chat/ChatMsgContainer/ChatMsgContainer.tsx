@@ -1,5 +1,6 @@
 import { Chat } from "../../../../../types/Chat";
 import ChatMsg from "../ChatMsg/ChatMsg";
+
 import ChatMsgProfile from "../ChatMsgProfile/ChatMsgProfile";
 import ChatMsgContainerWrapper from "./ChatMsgContainer.styles";
 

@@ -8,3 +8,16 @@ export interface Chat {
   /** 해당 메시지 보낸 시간 */
   creadtedAt: Date;
 }
+
+export interface ChatRoomInfo {
+  /** 프로필 이미지 경로 */
+  imgUrl?: string;
+  /** 닉네임 */
+  name: string;
+  /** 마지막에 온 메시지 */
+  lastMsg?: string;
+  /** 안 읽은 메시지 개수 */
+  unReadMsgCnt?: number;
+  /** 마지막 메시지 온 시간 */
+  creadtedAt?: Date;
+}

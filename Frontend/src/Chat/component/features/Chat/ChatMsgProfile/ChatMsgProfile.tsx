@@ -1,3 +1,4 @@
+import { DEFAULT_PROFILE_IMG } from "../../../../../constants/Chat";
 import ChatMsgProfileWrapper from "./ChatMsgProfile.styles";
 
 interface ChatMsgProfileProps {
@@ -8,7 +9,7 @@ interface ChatMsgProfileProps {
 }
 
 const ChatMsgProfile = ({
-  imgUrl = "/chat/Chat_Default_Img.svg",
+  imgUrl = DEFAULT_PROFILE_IMG,
   name,
 }: ChatMsgProfileProps) => {
   return (
