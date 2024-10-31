@@ -74,11 +74,7 @@ export async function getOrCreateChatRoom(userList: string[]): Promise<string> {
  * @returns 저장한 chat 객체
  */
 
-export async function updateChatUnread(
-  userId: string,
-  roomId: string,
-  message: string
-) {
+export async function updateChatUnread(userId: string, roomId: string) {
   try {
     const unreadData = await prisma.chatUnread.upsert({
       where: {
@@ -88,13 +84,11 @@ export async function updateChatUnread(
         },
       },
       update: {
-        unread_last_msg: message,
         unread_msg_cnt: { increment: 1 },
       },
       create: {
         user_id: userId,
         room_id: roomId,
-        unread_last_msg: message,
         unread_msg_cnt: 1,
       },
     });
@@ -105,4 +99,127 @@ export async function updateChatUnread(
     console.error("ChatUnread 업데이트 오류:", error);
     throw error;
   }
+}
+
+/**
+ * roomid 로 채팅 내역을 가져옵니다.
+ * @param roomId 방 번호,
+ * @returns chat테이블의 채팅 내역(최대 300개)
+ */
+export async function getChatHistoryByRoomId(roomId: string) {
+  try {
+    const chatHistory = await prisma.chat.findMany({
+      where: {
+        room_id: roomId, // 주어진 roomId에 해당하는 채팅 조회
+      },
+      orderBy: {
+        created_at: "asc", // 시간 순서로 정렬
+      },
+      take: 300, // 최대 300개까지 가져옴
+    });
+
+    console.log(`Room ID ${roomId}의 채팅 내역 조회 완료.`);
+    return chatHistory; // 채팅 내역 반환
+  } catch (error) {
+    console.error("Error fetching chat history:", error);
+    throw new Error("Failed to get chat history.");
+  }
+}
+
+/**
+ * userId로 채팅룸 정보 리스트를 가져옵니다.
+ * @param roomId 유저 ID,
+ * @returns 채팅 룸 정보 리스트
+ */
+export async function getChatRoomInfoByUserId(userId: string) {
+  try {
+    const rooms = await fetchUserChatRooms(userId);
+    const lastMessages = await getLatestMessagesByRoom(rooms);
+    const chatRoomList = await buildChatRoomList(rooms, lastMessages, userId);
+
+    console.log(`${userId} 채팅 룸 정보 리턴 완료`);
+    return chatRoomList; // 채팅 정보 리스트
+  } catch (error) {
+    console.error("Error fetching room chat info:", error);
+    throw new Error("Failed to get room chat info.");
+  }
+}
+
+// 1. 사용자의 채팅방 목록 조회
+async function fetchUserChatRooms(userId: string) {
+  const rooms = await prisma.chatRoom.findMany({
+    where: {
+      user_list: {
+        has: userId, // 배열에 userId가 포함된 경우
+      },
+    },
+    select: {
+      room_id: true, // room_id만 필요하므로 선택
+      user_list: true, // user_list도 선택하여 다른 사용자 ID를 가져옴
+    },
+  });
+
+  // 2. room_id와 user_list 객체 배열 생성
+  return rooms.map((room) => ({
+    room_id: room.room_id,
+    user_list: room.user_list,
+  }));
+}
+
+// 3. 각 room_id 별로 마지막 메시지 가져오기
+async function getLatestMessagesByRoom(roomIds: RoomInfo[]) {
+  const latestMessages = await Promise.all(
+    roomIds.map(async (roomId) => {
+      const messages = await prisma.chat.findMany({
+        where: { room_id: roomId.room_id },
+        orderBy: { created_at: "desc" },
+        take: 1, // 최신 메시지 하나만 가져오기
+      });
+      return messages[0] || null; // 최신 메시지가 없으면 null 반환
+    })
+  );
+
+  return latestMessages;
+}
+
+// 4. 각 room_id 별로 마지막 메시지와 읽지 않은 메시지 개수 가져오기
+async function buildChatRoomList(
+  rooms: { room_id: string; user_list: string[] }[],
+  lastMessages: any[],
+  userId: string
+) {
+  return Promise.all(
+    rooms.map(async (room) => {
+      const lastMessage = lastMessages.find(
+        (msg) => msg.room_id === room.room_id
+      );
+
+      // 5. ChatUnread 데이터 조회 (사용자 ID가 일치하는 경우에만)
+      const unreadData = await prisma.chatUnread.findUnique({
+        where: {
+          unique_user_room: {
+            user_id: userId,
+            room_id: room.room_id,
+          },
+        },
+      });
+
+      // 6. 다른 사용자 ID를 선택하여 이름을 가져오기
+      const otherUserId =
+        room.user_list.find((id) => id !== userId) || "Unknown"; // 다른 사용자 ID가 없으면 "Unknown"
+
+      return {
+        name: otherUserId, // 사용자 이름
+        lastMsg: lastMessage ? lastMessage.msg : undefined, // 마지막 메시지
+        unReadMsgCnt: unreadData ? unreadData.unread_msg_cnt : 0, // 읽지 않은 메시지 개수
+        creadtedAt: lastMessage ? lastMessage.created_at : null, // 마지막 메시지의 시간
+        roomId: room.room_id,
+      };
+    })
+  );
+}
+
+interface RoomInfo {
+  room_id: string;
+  user_list: string[];
 }
