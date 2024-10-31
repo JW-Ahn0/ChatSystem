@@ -17,7 +17,7 @@ const testArgus = {
   /** 해당 채팅을 읽었는지 구분 */
   isRead: false,
   /** 해당 메시지 보낸 시간 */
-  creadtedAt: new Date(),
+  creadtedAt: new Date().toString(),
 };
 
 const otehrChatList = Array.from({ length: 6 }, () => ({ ...testArgus }));

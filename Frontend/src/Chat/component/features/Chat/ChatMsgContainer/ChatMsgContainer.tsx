@@ -4,7 +4,7 @@ import ChatMsg from "../ChatMsg/ChatMsg";
 import ChatMsgProfile from "../ChatMsgProfile/ChatMsgProfile";
 import ChatMsgContainerWrapper from "./ChatMsgContainer.styles";
 
-interface ChatMsgContainerProps {
+export interface ChatMsgContainerProps {
   /** 채팅리스트 */
   chatList: Chat[];
   /** 채팅 보낸 유저가 나인지 타인인지 구분 */

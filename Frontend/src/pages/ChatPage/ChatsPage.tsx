@@ -22,7 +22,6 @@ const ChatsPage = () => {
           SERVER_URL + `/chat/${roomId}`
         )) as ServerChat[];
         setChatList(chatListData); // 가져온 데이터를 상태에 저장
-        console.log(chatListData);
       } catch (error) {
         console.error("Error fetching chat rooms:", error);
       }

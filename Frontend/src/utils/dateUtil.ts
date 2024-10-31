@@ -13,7 +13,8 @@ export function convertDate2Str(date: Date): string {
 }
 
 //Date - > XX시XX분 형식으로 변환
-export function convertDate2Time(date: Date): string {
+export function convertDate2Time(dateStr: string): string {
+  const date = new Date(dateStr);
   return date.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
@@ -21,7 +22,8 @@ export function convertDate2Time(date: Date): string {
 }
 
 // Date -> 오늘: "HH시 MM분", 올해: "MM월.DD일", 그 외: "YYYY.MM.DD"
-export function convertDate2ClentTime(date: Date): string {
+export function convertDate2ClentTime(dateStr: string): string {
+  const date = new Date(dateStr);
   const today = new Date();
 
   const isToday =
@@ -33,7 +35,7 @@ export function convertDate2ClentTime(date: Date): string {
 
   if (isToday) {
     // 오늘이면 시간 (HH시 MM분)
-    return convertDate2Time(date);
+    return convertDate2Time(dateStr);
   } else if (isThisYear) {
     // 올해면 "MM월.DD일"
     return (

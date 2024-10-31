@@ -6,10 +6,12 @@ export interface Chat {
   /** 해당 채팅을 읽었는지 구분 */
   isRead: boolean;
   /** 해당 메시지 보낸 시간 */
-  creadtedAt: Date;
+  creadtedAt: string;
 }
 
 export interface ChatRoomInfo {
+  /** 채팅방 ID */
+  roomId: string;
   /** 프로필 이미지 경로 */
   imgUrl?: string;
   /** 닉네임 */
@@ -19,5 +21,14 @@ export interface ChatRoomInfo {
   /** 안 읽은 메시지 개수 */
   unReadMsgCnt?: number;
   /** 마지막 메시지 온 시간 */
-  creadtedAt?: Date;
+  creadtedAt?: string;
+}
+
+export interface ServerChat {
+  chat_id: string;
+  room_id: string;
+  sender: string;
+  is_read: boolean;
+  msg: string;
+  created_at: string;
 }

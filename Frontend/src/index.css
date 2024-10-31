@@ -144,3 +144,7 @@ body {
   font-size: var(--font-size-body-medium);
   line-height: 1.5;
 }
+
+* {
+  box-sizing: border-box;
+}

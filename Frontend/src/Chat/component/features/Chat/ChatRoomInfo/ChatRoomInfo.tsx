@@ -16,7 +16,9 @@ interface ChatRoomItemProps {
   /** 안 읽은 메시지 개수 */
   unReadMsgCnt?: number;
   /** 마지막 메시지 온 시간 */
-  creadtedAt?: Date;
+  creadtedAt?: string;
+  /** 온 클릭 함수 */
+  onClick?: () => void;
 }
 const ChatRoomItem = ({
   imgUrl = DEFAULT_PROFILE_IMG,
@@ -24,10 +26,11 @@ const ChatRoomItem = ({
   unReadMsgCnt = 0,
   lastMsg = DEFAULT_LAST_MSG,
   creadtedAt,
+  onClick,
 }: ChatRoomItemProps) => {
   const lastMsgTime = creadtedAt ? convertDate2ClentTime(creadtedAt) : "";
   return (
-    <ChatRoomInfoWrapper>
+    <ChatRoomInfoWrapper onClick={onClick}>
       <img src={imgUrl}></img>
       <div className="name--and--msg">
         <strong>{name}</strong>

@@ -11,6 +11,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const chatRoomInfo = {
+  /** 채팅방 ID */
+  roomId: "1",
   /** 닉네임 */
   name: "테스트",
   /** 마지막에 온 메시지 */
@@ -18,7 +20,7 @@ const chatRoomInfo = {
   /** 안 읽은 메시지 개수 */
   unReadMsgCnt: 1,
   /** 마지막 메시지 온 시간 */
-  creadtedAt: new Date(),
+  creadtedAt: new Date().toString(),
 };
 
 const chatRoomList = Array.from({ length: 6 }, () => ({ ...chatRoomInfo }));
@@ -27,4 +29,8 @@ export const Default: Story = {
   args: {
     chatRoomList: chatRoomList,
   },
+};
+
+export const Empty: Story = {
+  args: {},
 };

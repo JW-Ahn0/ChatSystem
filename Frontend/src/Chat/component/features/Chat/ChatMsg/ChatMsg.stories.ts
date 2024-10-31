@@ -14,7 +14,7 @@ export const Other: Story = {
   args: {
     msg: "안녕하세요 반갑습니다.",
     isMe: false,
-    creadtedAt: new Date(),
+    creadtedAt: new Date().toString(),
     isRead: false,
     isLastMsg: true,
   },
@@ -24,7 +24,7 @@ export const Me: Story = {
   args: {
     msg: "네 안녕하세요 무슨 일이시죠?",
     isMe: true,
-    creadtedAt: new Date(),
+    creadtedAt: new Date().toString(),
     isRead: false,
     isLastMsg: true,
   },

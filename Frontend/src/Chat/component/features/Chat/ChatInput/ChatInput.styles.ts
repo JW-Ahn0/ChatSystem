@@ -2,9 +2,9 @@ import styled from "styled-components";
 
 const ChatInputWrapper = styled.div`
   position: relative;
-  display: inline-block;
-
+  width: auto;
   input {
+    width: 100%;
     position: relative;
     border: 2px solid var(--bg-gray-light);
     border-radius: 10px;
