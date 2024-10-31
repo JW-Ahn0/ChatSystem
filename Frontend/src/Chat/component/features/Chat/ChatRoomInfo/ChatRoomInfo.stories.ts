@@ -14,7 +14,8 @@ export const Default: Story = {
   args: {
     name: "엄마손파이",
     unReadMsgCnt: 1,
-    creadtedAt: new Date(),
+    creadtedAt: new Date().toString(),
+    lastMsg: "안녕하세요.",
   },
 };
 
@@ -28,7 +29,7 @@ export const MsgOverflow: Story = {
   args: {
     name: "엄마손파이",
     unReadMsgCnt: 1,
-    creadtedAt: new Date(),
+    creadtedAt: new Date().toString(),
     lastMsg: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   },
 };
