@@ -30,7 +30,72 @@ export async function createChat(
     throw error;
   }
 }
+export async function updateChatUnreadByCnt(
+  userId: string,
+  roomId: string,
+  cnt: number
+) {
+  try {
+    // 현재 unread_msg_cnt 조회
+    const currentUnread = await prisma.chatUnread.findUnique({
+      where: {
+        unique_user_room: {
+          user_id: userId,
+          room_id: roomId,
+        },
+      },
+    });
 
+    if (!currentUnread) {
+      throw new Error("ChatUnread record not found");
+    }
+
+    // 감소 계산 및 0으로 제한
+    const newUnreadCount = Math.max(
+      (currentUnread.unread_msg_cnt || 0) - cnt,
+      0
+    );
+
+    // 업데이트
+    const updatedUnread = await prisma.chatUnread.update({
+      where: {
+        unique_user_room: {
+          user_id: userId,
+          room_id: roomId,
+        },
+      },
+      data: {
+        unread_msg_cnt: newUnreadCount,
+      },
+    });
+
+    console.log("ChatUnread 정보가 업데이트되었습니다:", updatedUnread);
+    return updatedUnread;
+  } catch (error) {
+    console.error("ChatUnread 업데이트 오류:", error);
+    throw error;
+  }
+}
+
+export async function markChatsAsRead(
+  unreadChatIds: string[]
+): Promise<number> {
+  try {
+    const result = await prisma.chat.updateMany({
+      where: {
+        chat_id: { in: unreadChatIds },
+      },
+      data: {
+        is_read: true,
+      },
+    });
+    console.log(`Marked ${result.count} chats as read.`);
+    return result.count; // 업데이트된 레코드 수 반환
+  } catch (error) {
+    console.error("Error updating chats as read:", error);
+    throw error;
+  }
+}
 /**
  * userId가 포함된 ChatRoom을 찾거나, 없으면 새로운 ChatRoom을 생성하여 반환합니다.
  * @param userList 참여할 유저 ID 배열 (예: ["userA", "userB"])

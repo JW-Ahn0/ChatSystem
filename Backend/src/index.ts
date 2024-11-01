@@ -7,8 +7,11 @@ import {
   getChatRoomInfoByUserId,
   updateChatUnread,
   getChatHistoryByRoomId,
+  markChatsAsRead,
+  updateChatUnreadByCnt,
 } from "./chat";
 import cors from "cors"; // CORS 패키지 import
+import { Chat, Room, UnreadData } from "./types/chat_type";
 
 const app = express(); // Express 인스턴스 생성
 
@@ -81,16 +84,27 @@ io.on("connection", (socket) => {
   socket.on("register", (userId: string) => {
     clients.set(userId, { socket, userId });
     //console.log(`사용자 ${userId} 등록 완료.`);
-    printClients(clients);
+    //printClients(clients);
   });
 
-  // 메시지 수신
   socket.on("message", async ({ senderId, targetId, message }) => {
     const roomId = await getOrCreateChatRoom([senderId, targetId]);
     const chat = await createChat(roomId, senderId, message);
-    //console.log(chat);
-    await updateChatUnread(targetId, roomId);
-    sendMessage(senderId, targetId, message, chat.is_read, chat.created_at);
+
+    const unreadData = await updateChatUnread(targetId, roomId);
+    const senderUnread = await getChatRoomInfoByUserId(senderId);
+    const targetUnread = await getChatRoomInfoByUserId(targetId);
+    console.log("unreadData");
+    console.log(unreadData);
+    sendMessage(chat, targetId, targetUnread);
+    sendMessage(chat, senderId, senderUnread);
+  });
+
+  socket.on("message-read", async ({ unreadChatIds, roomId, userId }) => {
+    const cnt = await markChatsAsRead(unreadChatIds);
+    const updatedUnread = await updateChatUnreadByCnt(userId, roomId, cnt);
+    const rooms = await getChatRoomInfoByUserId(userId);
+    sendChatRoomData(userId, rooms, unreadChatIds);
   });
 
   // 클라이언트가 연결 종료 시 처리
@@ -115,24 +129,35 @@ function printClients(clients: Map<string, Client>) {
   });
 }
 
-// 1:1 메시지 전송 함수
-function sendMessage(
-  senderId: string,
+function sendChatRoomData(
   targetId: string,
-  message: string,
-  isRead: boolean,
-  createdAt: Date
+  rooms: Room[],
+  unreadChatIds: string[]
 ) {
   const targetClient = clients.get(targetId);
 
   if (targetClient) {
-    targetClient.socket.emit("message", {
-      senderId,
-      message,
-      isRead,
-      createdAt,
+    targetClient.socket.emit("message-read", {
+      targetId,
+      rooms,
+      unreadChatIds,
     });
-    console.log(`사용자 ${senderId}가 ${targetId}에게 메시지 전송: ${message}`);
+    console.log(`사용자 ${targetId}에게 메시지 전송`);
+  } else {
+    console.log(`대상 사용자 ${targetId}를 찾을 수 없습니다.`);
+  }
+}
+// 1:1 메시지 전송 함수
+function sendMessage(chat: Chat, targetId: string, unreadData: UnreadData[]) {
+  const targetClient = clients.get(targetId);
+
+  if (targetClient) {
+    targetClient.socket.emit("message", {
+      chat,
+      targetId,
+      unreadData,
+    });
+    console.log(`사용자 ${chat.sender}가 ${targetId}에게 메시지 전송`);
   } else {
     console.log(`대상 사용자 ${targetId}를 찾을 수 없습니다.`);
   }
