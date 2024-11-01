@@ -22,7 +22,7 @@ const ChatMsg = ({
 }: ChatMsgProps) => {
   const msgClass = isMe ? "my" : "other";
   const textAlignClass = isMe ? "text--end" : "text--start";
-  const isReadClass = isRead ? "" : "not--read";
+  const isReadClass = isMe ? "" : isRead ? "" : "not--read";
 
   const time = convertDate2Time(creadtedAt);
 

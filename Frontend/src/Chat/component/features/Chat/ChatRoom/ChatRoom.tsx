@@ -1,104 +1,150 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ServerChat } from "../../../../../types/Chat";
 import ChatInput from "../ChatInput/ChatInput";
-import ChatMsgContainer, {
-  ChatMsgContainerProps,
-} from "../ChatMsgContainer/ChatMsgContainer";
 import ChatRoomWrapper from "./ChatRoom.styles";
+import { useChatGroups } from "../../../../../hooks/Chat/useChatGroups";
+import ChatMsgContainer from "../ChatMsgContainer/ChatMsgContainer";
+import { convertDate2Str } from "../../../../../utils/dateUtil";
+import ChatDay from "../ChatDay/ChatDay";
 
 interface ChatRoomProps {
   chatList?: ServerChat[] | null;
+  myUsername: string;
+  roomId?: string;
+  sendMessage: (msg: string, targetId: string) => void;
+  sendUnReadMessage: (
+    unreadChatIds: string[],
+    userId: string,
+    roomId?: string
+  ) => void;
+  otherUserId: string;
 }
 
-const ChatRoom = ({ chatList }: ChatRoomProps) => {
-  // TODO: 전역 상태의 닉네임으로 변경
-  const myUsername = "user1";
-  const [chatGroups, setChatGroups] = useState<ChatMsgContainerProps[]>([]);
+const ChatRoom = ({
+  chatList,
+  myUsername,
+  roomId,
+  sendMessage,
+  sendUnReadMessage,
+  otherUserId,
+}: ChatRoomProps) => {
+  const [newChats, setNewChats] = useState<ServerChat[]>([]);
+  const chatGroups = useChatGroups(newChats, myUsername); // 커스텀 훅
+  const chatEndRef = useRef<HTMLDivElement>(null); // 스크롤을 내릴 참조
+  const [isInputEvent, setIsInputEvent] = useState<boolean>(true);
 
-  // chatList가 변경될 때마다 chatGroups 업데이트
+  const [unreadChatIds, setUnreadChatIds] = useState<string[]>([]);
+  const [isFocused, setIsFocused] = useState(false); // 포커스 상태를 추적할 상태
+  const chatRoomRef = useRef<HTMLDivElement>(null);
+  // 포커스 상태 변경 핸들러
+  const handleFocusChange = (focused: boolean) => {
+    setIsFocused(focused);
+  };
+  useEffect(() => {
+    const handleFocus = () => setIsFocused(true);
+    const handleBlur = () => setIsFocused(false);
+
+    const chatRoomElement = chatRoomRef.current;
+    if (chatRoomElement) {
+      chatRoomElement.addEventListener("focus", handleFocus);
+      chatRoomElement.addEventListener("blur", handleBlur);
+    }
+
+    return () => {
+      if (chatRoomElement) {
+        chatRoomElement.removeEventListener("focus", handleFocus);
+        chatRoomElement.removeEventListener("blur", handleBlur);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      // 여기서 unreadChatIds를 가져오는 로직 호출
+      fetchUnreadChatIds();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFocused, chatList]);
+
+  const fetchUnreadChatIds = () => {
+    const unreadIds =
+      chatList
+        ?.filter((chat) => !chat.is_read && chat.sender !== myUsername)
+        .map((chat) => chat.chat_id) ?? [];
+    setUnreadChatIds(unreadIds);
+  };
+
+  useEffect(() => {
+    sendUnReadMessage(unreadChatIds, myUsername, roomId);
+  }, [unreadChatIds]);
+
   useEffect(() => {
     if (chatList) {
-      const groups = groupChats(chatList, myUsername);
-      setChatGroups(groups);
+      setNewChats(chatList);
+      setIsInputEvent(true);
     }
-  }, [chatList, myUsername]);
+  }, [chatList]);
+
+  useEffect(() => {
+    // 새 메시지가 추가될 때마다 스크롤을 아래로 이동
+    if (isInputEvent) {
+      chatEndRef.current?.scrollIntoView({ behavior: "auto" });
+      if (chatGroups.length > 0) {
+        setIsInputEvent(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatGroups]);
 
   const handleMsg = (msg: string) => {
     const newChat: ServerChat = {
       chat_id: "",
-      room_id: "room1", // 필요한 값들 임의로 설정
+      room_id: roomId ? roomId : "",
       sender: myUsername,
       is_read: false,
       msg,
       created_at: new Date().toString(),
     };
 
-    // 새로운 메시지 추가와 함께 그룹 재생성
-    const updatedChatList = chatList ? [...chatList, newChat] : [newChat];
-    const updatedGroups = groupChats(updatedChatList, myUsername);
-    setChatGroups(updatedGroups);
+    // 새로운 메시지를 추가하고 상태 업데이트
+    setNewChats((prevChats) => {
+      const updatedChats = [...prevChats, newChat];
+      setIsInputEvent(true);
+      sendMessage(msg, otherUserId);
+      return updatedChats;
+    });
   };
 
   return (
-    <ChatRoomWrapper>
+    <ChatRoomWrapper ref={chatRoomRef} tabIndex={0}>
       <div className="chat-item">
-        {chatGroups.map((value, index) => (
-          <ChatMsgContainer
-            key={index}
-            chatList={value.chatList}
-            isMe={value.isMe}
-            userNickName={value.userNickName}
-          ></ChatMsgContainer>
-        ))}
+        {chatGroups.map((group, index) => {
+          const msgDay = convertDate2Str(group.chatList[0].creadtedAt);
+
+          return (
+            <div key={index} className="chat-date-item">
+              {/* 첫 번째 메시지이거나 2개의 메시지 날짜가 다를 때만 출력 */}
+              {index === 0 ||
+              msgDay !==
+                convertDate2Str(
+                  chatGroups[index - 1].chatList[0].creadtedAt
+                ) ? (
+                <ChatDay date={msgDay} />
+              ) : null}
+              <ChatMsgContainer
+                key={index}
+                chatList={group.chatList}
+                isMe={group.isMe}
+                userNickName={group.userNickName}
+              />
+            </div>
+          );
+        })}
+        <div ref={chatEndRef} /> {/* 스크롤 이동을 위한 빈 div */}
       </div>
-      <ChatInput onClick={handleMsg}></ChatInput>
+      <ChatInput onClick={handleMsg} onFocusChange={handleFocusChange} />
     </ChatRoomWrapper>
   );
 };
-
-// 시간과 발신자 기준으로 그룹화하는 함수
-function groupChats(
-  chatList: ServerChat[],
-  myUsername: string
-): ChatMsgContainerProps[] {
-  const groups: ChatMsgContainerProps[] = [];
-
-  let currentGroup: ChatMsgContainerProps | null = null;
-  chatList.forEach((chat) => {
-    const chatTime = formatTime(chat.created_at);
-    const isMe = chat.sender === myUsername;
-
-    // 새로운 그룹이 필요할 때: 발신자가 다르거나, 시간이 다르거나, 그룹이 없는 경우
-    if (
-      !currentGroup ||
-      currentGroup.isMe !== isMe ||
-      formatTime(currentGroup.chatList[0].creadtedAt) !== chatTime
-    ) {
-      // 새 그룹 생성 및 추가
-      currentGroup = {
-        isMe,
-        userNickName: chat.sender,
-        chatList: [],
-      };
-      groups.push(currentGroup);
-    }
-
-    // 기존 그룹에 채팅 추가
-    currentGroup.chatList.push({
-      msg: chat.msg,
-      isLastMsg: false,
-      isRead: chat.is_read,
-      creadtedAt: chat.created_at,
-    });
-  });
-
-  return groups;
-}
-
-// 시간(분 단위) 포맷팅 함수
-function formatTime(datestr: string): string {
-  const date = new Date(datestr); // 문자열을 Date 객체로 변환
-  return date.toISOString().slice(0, 16); // 'YYYY-MM-DDTHH:mm'
-}
 
 export default ChatRoom;

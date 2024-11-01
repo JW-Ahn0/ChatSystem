@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSearchParams } from "react-router-dom";
 import "./Chat.css";
+import { convertDate2Time } from "../utils/dateUtil";
 const SERVER_URL = "http://59.8.137.118:5172"; // 서버 주소
 
 const Chat: React.FC = () => {
@@ -13,7 +14,7 @@ const Chat: React.FC = () => {
   const [targetId, setTargetId] = useState<string>("");
   const [inputMessage, setInputMessage] = useState<string>("");
   const [messages, setMessages] = useState<
-    { senderId: string; message: string; isRead: boolean; createdAt: Date }[]
+    { sender: string; msg: string; is_read: boolean; created_at: string }[]
   >([]);
 
   // 스크롤을 마지막 메시지로 유지하기 위한 참조값
@@ -25,7 +26,7 @@ const Chat: React.FC = () => {
     setSocket(newSocket);
 
     newSocket.on("message", (data) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
+      setMessages((prevMessages) => [...prevMessages, data.chat]);
     });
 
     // 사용자 등록
@@ -53,15 +54,6 @@ const Chat: React.FC = () => {
         targetId,
         message: inputMessage,
       });
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          senderId: userId,
-          message: inputMessage,
-          isRead: false,
-          createdAt: new Date(),
-        },
-      ]);
       setInputMessage("");
     }
   };
@@ -70,26 +62,24 @@ const Chat: React.FC = () => {
     <div className="chat-container">
       <h1>1:1 실시간 채팅</h1>
       <div className="chat-box" ref={chatBoxRef}>
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`message ${
-              msg.senderId === userId ? "my-message" : "other-message"
-            }`}
-          >
-            <p className="sender">{msg.senderId}</p>
-            <p className="text">{msg.message}</p>
-            <p className="timestamp">
-              {msg.createdAt.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-            <p className="is-read">
-              {msg.isRead ? "" : "1"} {/* 읽었는지 여부 표시 */}
-            </p>
-          </div>
-        ))}
+        {messages.map((msg, index) => {
+          console.log(msg);
+          return (
+            <div
+              key={index}
+              className={`message ${
+                msg.sender === userId ? "my-message" : "other-message"
+              }`}
+            >
+              <p className="sender">{msg.sender}</p>
+              <p className="text">{msg.msg}</p>
+              <p className="timestamp">{convertDate2Time(msg.created_at)}</p>
+              <p className="is-read">
+                {msg.is_read ? "" : "1"} {/* 읽었는지 여부 표시 */}
+              </p>
+            </div>
+          );
+        })}
       </div>
       <div className="input-area">
         <input

@@ -12,6 +12,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    roomId: "1",
+    selectedRoomId: "0",
     name: "엄마손파이",
     unReadMsgCnt: 1,
     creadtedAt: new Date().toString(),
@@ -21,12 +23,27 @@ export const Default: Story = {
 
 export const NoUnreadMsg: Story = {
   args: {
+    roomId: "1",
+    selectedRoomId: "0",
     name: "엄마손파이",
   },
 };
 
 export const MsgOverflow: Story = {
   args: {
+    roomId: "1",
+    selectedRoomId: "0",
+    name: "엄마손파이",
+    unReadMsgCnt: 1,
+    creadtedAt: new Date().toString(),
+    lastMsg: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  },
+};
+
+export const SelectedMsgOverflow: Story = {
+  args: {
+    roomId: "1",
+    selectedRoomId: "1",
     name: "엄마손파이",
     unReadMsgCnt: 1,
     creadtedAt: new Date().toString(),

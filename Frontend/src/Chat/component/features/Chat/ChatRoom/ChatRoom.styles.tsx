@@ -5,14 +5,22 @@ const ChatRoomWrapper = styled.div`
   min-height: 500px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
+  background-color: black;
   gap: 24px;
 
   .chat-item {
-    height: 100%;
+    max-height: 800px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
+  }
+
+  .chat-date-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 `;
 

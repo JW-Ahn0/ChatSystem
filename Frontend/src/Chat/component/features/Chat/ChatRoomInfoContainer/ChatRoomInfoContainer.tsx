@@ -5,11 +5,13 @@ import ChatRoomInfoContainerWrapper from "./ChatRoomInfoContainer.styles";
 interface ChatRoomContainerProps {
   /** 채팅 정보 리스트 */
   chatRoomList?: ChatRoomInfo[] | null;
-  onChatRoomClick?: (chatRoom: string) => void; // 클릭 이벤트 처리 함수
+  onChatRoomClick?: (chatRoom: string, otherUserId: string) => void; // 클릭 이벤트 처리 함수
+  selectedRoomId: string;
 }
 const ChatRoomContainer = ({
   chatRoomList,
   onChatRoomClick = () => {},
+  selectedRoomId,
 }: ChatRoomContainerProps) => {
   // chatRoomList가 null일 경우 빈 배열로 초기화
   const rooms = chatRoomList || [];
@@ -25,7 +27,9 @@ const ChatRoomContainer = ({
           unReadMsgCnt={chatRoom.unReadMsgCnt}
           lastMsg={chatRoom.lastMsg}
           creadtedAt={chatRoom.creadtedAt}
-          onClick={() => onChatRoomClick(chatRoom.roomId)} // 클릭 시 roomId 전달
+          onClick={() => onChatRoomClick(chatRoom.roomId, chatRoom.name)} // 클릭 시 roomId 전달
+          roomId={chatRoom.roomId}
+          selectedRoomId={selectedRoomId}
         />
       ))}
     </ChatRoomInfoContainerWrapper>

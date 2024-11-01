@@ -1,5 +1,6 @@
 //Date - > 'XXXX년XX월XX일(X) 형식으로 변환
-export function convertDate2Str(date: Date): string {
+export function convertDate2Str(dateStr: string): string {
+  const date = new Date(dateStr);
   const days = ["일", "월", "화", "수", "목", "금", "토"];
   const localDate = new Date(date);
   const year = localDate.getFullYear();
@@ -20,8 +21,7 @@ export function convertDate2Time(dateStr: string): string {
     minute: "2-digit",
   });
 }
-
-// Date -> 오늘: "HH시 MM분", 올해: "MM월.DD일", 그 외: "YYYY.MM.DD"
+// Date -> 오늘: "HH시 MM분", 올해: "MM월 DD일", 그 외: "YYYY.MM.DD"
 export function convertDate2ClentTime(dateStr: string): string {
   const date = new Date(dateStr);
   const today = new Date();
@@ -37,15 +37,14 @@ export function convertDate2ClentTime(dateStr: string): string {
     // 오늘이면 시간 (HH시 MM분)
     return convertDate2Time(dateStr);
   } else if (isThisYear) {
-    // 올해면 "MM월.DD일"
-    return (
-      date
-        .toLocaleDateString("ko-KR", {
-          month: "2-digit",
-          day: "2-digit",
-        })
-        .replace(/\./g, "월.") + "일"
-    );
+    // 올해면 "MM월 DD일"
+    const month = date
+      .toLocaleString("ko-KR", { month: "2-digit" })
+      .replace(/^0/, ""); // 0 제거
+    const day = date
+      .toLocaleString("ko-KR", { day: "2-digit" })
+      .replace(/^0/, ""); // 0 제거
+    return `${month} ${day}`;
   } else {
     // 올해가 아니면 "YYYY.MM.DD"
     return date.toLocaleDateString("ko-KR", {

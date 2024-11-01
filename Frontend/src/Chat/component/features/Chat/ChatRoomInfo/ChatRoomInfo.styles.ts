@@ -3,6 +3,7 @@ import styled from "styled-components";
 const ChatRoomInfoWrapper = styled.div`
   width: 100%;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
   border-radius: 16px;
@@ -32,6 +33,10 @@ const ChatRoomInfoWrapper = styled.div`
     align-items: flex-end;
     font-size: 12px;
     gap: 8px;
+  }
+
+  &.active {
+    background-color: var(--color-white);
   }
 `;
 

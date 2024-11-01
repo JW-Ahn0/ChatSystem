@@ -28,9 +28,12 @@ const chatRoomList = Array.from({ length: 6 }, () => ({ ...chatRoomInfo }));
 export const Default: Story = {
   args: {
     chatRoomList: chatRoomList,
+    selectedRoomId: "1",
   },
 };
 
 export const Empty: Story = {
-  args: {},
+  args: {
+    selectedRoomId: "1",
+  },
 };

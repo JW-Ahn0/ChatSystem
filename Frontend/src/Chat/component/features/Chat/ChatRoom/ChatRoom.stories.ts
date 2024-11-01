@@ -48,5 +48,14 @@ const serverChatList: ServerChat[] = [
 export const Default: Story = {
   args: {
     chatList: serverChatList,
+    myUsername: "user1",
+    otherUserId: "user2",
+    roomId: "1",
+    sendMessage: (msg, targetId) => {
+      console.log(msg, targetId);
+    },
+    sendUnReadMessage: (unreadChatIds, userId) => {
+      console.log(unreadChatIds, userId);
+    },
   },
 };

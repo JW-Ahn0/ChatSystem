@@ -7,6 +7,10 @@ import ChatRoomInfoWrapper from "./ChatRoomInfo.styles";
 import ChatUnReadCnt from "./ChatUnReadCnt/ChatUnReadCnt";
 
 interface ChatRoomItemProps {
+  /** 방 id */
+  roomId: string;
+  /** 유저가 선택한 방 id */
+  selectedRoomId: string;
   /** 프로필 이미지 경로 */
   imgUrl?: string;
   /** 닉네임 */
@@ -21,6 +25,8 @@ interface ChatRoomItemProps {
   onClick?: () => void;
 }
 const ChatRoomItem = ({
+  roomId = "1",
+  selectedRoomId,
   imgUrl = DEFAULT_PROFILE_IMG,
   name,
   unReadMsgCnt = 0,
@@ -30,7 +36,10 @@ const ChatRoomItem = ({
 }: ChatRoomItemProps) => {
   const lastMsgTime = creadtedAt ? convertDate2ClentTime(creadtedAt) : "";
   return (
-    <ChatRoomInfoWrapper onClick={onClick}>
+    <ChatRoomInfoWrapper
+      className={roomId === selectedRoomId ? "active" : ""}
+      onClick={onClick}
+    >
       <img src={imgUrl}></img>
       <div className="name--and--msg">
         <strong>{name}</strong>

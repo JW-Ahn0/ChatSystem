@@ -32,3 +32,10 @@ export interface ServerChat {
   msg: string;
   created_at: string;
 }
+
+export interface ClientChat {
+  senderId: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+}
