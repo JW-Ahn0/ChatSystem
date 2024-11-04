@@ -3,6 +3,31 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 /**
+ * userList 통해 채팅방이 존재하는 지 확인
+ * @param userList 유저 아이디 리스트,
+ * @returns 저장한 userNickName 객체
+ */
+
+export async function getRoomByUserList(userList: string[]) {
+  if (!userList || userList.length === 0) {
+    throw new Error("userList는 빈 배열일 수 없습니다.");
+  }
+  try {
+    const chatRoom = await prisma.chatRoom.findFirst({
+      where: {
+        user_list: {
+          hasEvery: userList, // user_list가 userList의 모든 값을 포함해야 함
+        },
+      },
+    });
+    return chatRoom ? true : false; // 채팅방이 존재하면 true, 아니면 false
+  } catch (error) {
+    console.log(error);
+    throw new Error("채팅방 조회 에러");
+  }
+}
+
+/**
  * user_id, user_nickname 통해 유저 아이디별 대응 되는 유저 닉네임을 저장합니다.
  * @param user_id 유저 아이디,
  * @param user_nickname 유저 닉네임,
@@ -296,7 +321,7 @@ async function buildChatRoomList(
   lastMessages: any[],
   userId: string
 ) {
-  return Promise.all(
+  const chatRoomList = await Promise.all(
     rooms.map(async (room) => {
       const lastMessage = lastMessages.find(
         (msg) => msg.room_id === room.room_id
@@ -328,6 +353,16 @@ async function buildChatRoomList(
       };
     })
   );
+  // createdAt 기준으로 정렬 (내림차순)
+  return chatRoomList.sort((a, b) => {
+    // a.createdAt과 b.createdAt이 null일 경우를 대비
+    if (a.creadtedAt === null && b.creadtedAt === null) return 0;
+    if (a.creadtedAt === null) return 1; // a가 null이면 b가 앞에 와야 함
+    if (b.creadtedAt === null) return -1; // b가ㅊ null이면 a가 앞에 와야 함
+
+    // 두 값이 있을 경우 내림차순 정렬
+    return new Date(b.creadtedAt).getTime() - new Date(a.creadtedAt).getTime();
+  });
 }
 
 export async function getUserNickNameById(userId: string) {

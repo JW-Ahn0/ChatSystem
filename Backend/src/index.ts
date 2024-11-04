@@ -12,6 +12,7 @@ import {
   updateChatUnreadByCnt,
   createUserIdNickName,
   getUserNickNameById,
+  getRoomByUserList,
 } from "./chat";
 import cors from "cors"; // CORS 패키지 import
 import { Chat, Room, UnreadData } from "./types/chat_type";
@@ -113,6 +114,22 @@ app.post(
     }
   }
 );
+
+// 특정 user_list로 참여 여부 확인 API
+app.post("/room/exists", async (req: Request, res: Response): Promise<void> => {
+  const { user_list } = req.body; // 요청 본문에서 userList 추출
+
+  try {
+    // user_list가 userList의 모든 요소를 포함하는 채팅방 조회
+    const ChatRoom = await getRoomByUserList(user_list);
+    res.json({ exists: ChatRoom }); // 유저가 참여 중인 채팅방이 존재함
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+});
 
 // 현재 연결된 사용자들을 저장 (userId 기반)
 const clients = new Map<string, Client>();
