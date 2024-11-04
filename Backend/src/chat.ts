@@ -3,6 +3,31 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 /**
+ * user_id, user_nickname 통해 유저 아이디별 대응 되는 유저 닉네임을 저장합니다.
+ * @param user_id 유저 아이디,
+ * @param user_nickname 유저 닉네임,
+ * @returns 저장한 userNickName 객체
+ */
+
+export async function createUserIdNickName(
+  user_id: string,
+  user_nickname: string
+) {
+  try {
+    const newUser = await prisma.userNickName.create({
+      data: {
+        user_id,
+        user_nickname,
+      },
+    });
+    return newUser; // 채팅 내역 반환
+  } catch (error) {
+    console.error("닉네임 등록 에러:", error);
+    throw new Error("닉네임 등록 에러.");
+  }
+}
+
+/**
  * roomid, sender를 통해 채팅내역을 저장합니다.
  * @param roomId 방 번호,
  * @param sender 보낸 사람 ID,
@@ -182,9 +207,27 @@ export async function getChatHistoryByRoomId(roomId: string) {
       },
       take: 300, // 최대 300개까지 가져옴
     });
+    // 유일한 sender ID에서 닉네임을 가져오기
+    const uniqueSenderIds = Array.from(
+      new Set(chatHistory.map((chat) => chat.sender))
+    );
+    const senderNicknames = await Promise.all(
+      uniqueSenderIds.map((senderId) => getUserNickNameById(senderId))
+    );
+
+    // 닉네임을 매핑
+    const nicknameMap = Object.fromEntries(
+      uniqueSenderIds.map((id, index) => [id, senderNicknames[index]])
+    );
+
+    // 닉네임으로 변환한 채팅 내역
+    const chatHistoryWithNicknames = chatHistory.map((chat) => ({
+      ...chat, // 기존 채팅 데이터를 유지
+      sender: nicknameMap[chat.sender], // sender를 닉네임으로 변경
+    }));
 
     console.log(`Room ID ${roomId}의 채팅 내역 조회 완료.`);
-    return chatHistory; // 채팅 내역 반환
+    return chatHistoryWithNicknames; // 채팅 내역 반환
   } catch (error) {
     console.error("Error fetching chat history:", error);
     throw new Error("Failed to get chat history.");
@@ -273,8 +316,11 @@ async function buildChatRoomList(
       const otherUserId =
         room.user_list.find((id) => id !== userId) || "Unknown"; // 다른 사용자 ID가 없으면 "Unknown"
 
+      // 닉네임 가져오기
+      const otherUserNickName = await getUserNickNameById(otherUserId);
       return {
-        name: otherUserId, // 사용자 이름
+        otherUserId: otherUserId,
+        name: otherUserNickName, // 사용자 이름
         lastMsg: lastMessage ? lastMessage.msg : undefined, // 마지막 메시지
         unReadMsgCnt: unreadData ? unreadData.unread_msg_cnt : 0, // 읽지 않은 메시지 개수
         creadtedAt: lastMessage ? lastMessage.created_at : null, // 마지막 메시지의 시간
@@ -284,6 +330,17 @@ async function buildChatRoomList(
   );
 }
 
+export async function getUserNickNameById(userId: string) {
+  try {
+    const userNickName = await prisma.userNickName.findFirst({
+      where: { user_id: userId }, // user_id로 검색
+    });
+    return userNickName ? userNickName.user_nickname : "Unknown"; // 닉네임이 없으면 "Unknown" 반환
+  } catch (error) {
+    console.error("닉네임 조회 에러:", error);
+    return "Unknown"; // 에러 발생 시 "Unknown" 반환
+  }
+}
 interface RoomInfo {
   room_id: string;
   user_list: string[];

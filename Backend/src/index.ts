@@ -1,4 +1,5 @@
 import express from "express";
+import { Request, Response } from "express";
 import { Server, Socket } from "socket.io";
 import http from "http";
 import {
@@ -9,12 +10,14 @@ import {
   getChatHistoryByRoomId,
   markChatsAsRead,
   updateChatUnreadByCnt,
+  createUserIdNickName,
+  getUserNickNameById,
 } from "./chat";
 import cors from "cors"; // CORS 패키지 import
 import { Chat, Room, UnreadData } from "./types/chat_type";
 
 const app = express(); // Express 인스턴스 생성
-
+app.use(express.json());
 // CORS 미들웨어 사용
 app.use(
   cors({
@@ -73,6 +76,44 @@ app.get("/chat/:roomId", async (req, res) => {
   }
 });
 
+// 특정 roomId의 채팅 내역 조회 API
+app.get("/nickname/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userNickName = await getUserNickNameById(userId);
+    res.json(userNickName);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+});
+
+// Express POST 요청 처리
+app.post(
+  "/register/nickname",
+  async (req: Request, res: Response): Promise<void> => {
+    const { user_id, user_nickname } = req.body;
+
+    // 필수 필드 체크
+    if (!user_id || !user_nickname) {
+      res.status(400).json({ error: "user_id와 user_nickname이 필요합니다." });
+      return;
+    }
+
+    try {
+      const newUser = await createUserIdNickName(user_id, user_nickname);
+      res
+        .status(201)
+        .json({ message: "닉네임이 성공적으로 등록되었습니다.", newUser });
+    } catch (error) {
+      console.error("닉네임 등록 에러:", error);
+      res.status(500).json({ error: "닉네임 등록에 실패했습니다." });
+    }
+  }
+);
+
 // 현재 연결된 사용자들을 저장 (userId 기반)
 const clients = new Map<string, Client>();
 
@@ -89,15 +130,19 @@ io.on("connection", (socket) => {
 
   socket.on("message", async ({ senderId, targetId, message }) => {
     const roomId = await getOrCreateChatRoom([senderId, targetId]);
-    const chat = await createChat(roomId, senderId, message);
+    let chat = await createChat(roomId, senderId, message);
+    const targetName = await getUserNickNameById(targetId);
+    const senderName = await getUserNickNameById(senderId);
+    chat.sender = senderName;
 
     const unreadData = await updateChatUnread(targetId, roomId);
     const senderUnread = await getChatRoomInfoByUserId(senderId);
     const targetUnread = await getChatRoomInfoByUserId(targetId);
+
     console.log("unreadData");
     console.log(unreadData);
-    sendMessage(chat, targetId, targetUnread);
-    sendMessage(chat, senderId, senderUnread);
+    sendMessage(chat, targetId, targetUnread, targetName);
+    sendMessage(chat, senderId, senderUnread, senderName);
   });
 
   socket.on("message-read", async ({ unreadChatIds, roomId, userId }) => {
@@ -148,13 +193,17 @@ function sendChatRoomData(
   }
 }
 // 1:1 메시지 전송 함수
-function sendMessage(chat: Chat, targetId: string, unreadData: UnreadData[]) {
+function sendMessage(
+  chat: Chat,
+  targetId: string,
+  unreadData: UnreadData[],
+  targetName: string
+) {
   const targetClient = clients.get(targetId);
-
   if (targetClient) {
     targetClient.socket.emit("message", {
       chat,
-      targetId,
+      targetName,
       unreadData,
     });
     console.log(`사용자 ${chat.sender}가 ${targetId}에게 메시지 전송`);

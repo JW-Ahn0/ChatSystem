@@ -39,3 +39,12 @@ model ChatUnread {
   @@unique([user_id, room_id], name: "unique_user_room") // 복합 고유 인덱스 설정
   @@index([room_id], name: "idx_room_id_unread")         // 채팅방별 인덱스
 }
+
+model UserNickName {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB 고유 식별자
+  user_id        String 
+  user_nickname  String
+
+  @@index([user_id], name: "idx_user_id")         // 채팅방별 인덱스
+
+}
