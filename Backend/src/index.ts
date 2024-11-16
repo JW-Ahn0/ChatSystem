@@ -1,7 +1,8 @@
 import express from "express";
 import { Request, Response } from "express";
 import { Server, Socket } from "socket.io";
-import http from "http";
+import https from "https";
+import fs from "fs";
 import {
   createChat,
   getOrCreateChatRoom,
@@ -13,10 +14,30 @@ import {
   createUserIdNickName,
   getUserNickNameById,
   getRoomByUserList,
+  getUnreadMessagesCountByUser,
+  upsertUserUnRaedTable,
+  getUnreadDataById,
+  updateUnRaedTable,
+  getUserNickNameProfileImgById,
 } from "./chat";
 import cors from "cors"; // CORS 패키지 import
 import { Chat, Room, UnreadData } from "./types/chat_type";
+import { MongoClient } from "mongodb";
+import path from "path";
 
+// 인증서 파일 경로 설정
+const privateKey = fs.readFileSync(
+  path.resolve(__dirname, "../src/certificates/jwjwjw.store-key.pem"),
+  "utf8"
+);
+const certificate = fs.readFileSync(
+  path.resolve(__dirname, "../src/certificates/jwjwjw.store-crt.pem"),
+  "utf8"
+);
+const ca = fs.readFileSync(
+  path.resolve(__dirname, "../src/certificates/jwjwjw.store-chain.pem"),
+  "utf8"
+);
 const app = express(); // Express 인스턴스 생성
 app.use(express.json());
 // CORS 미들웨어 사용
@@ -30,7 +51,14 @@ app.use(
 );
 
 // HTTP 서버 생성
-const server = http.createServer(app);
+const server = https.createServer(
+  {
+    key: privateKey,
+    cert: certificate,
+    ca: ca,
+  },
+  app
+);
 const io = new Server(server, {
   cors: {
     origin: "*", // 모든 출처 허용
@@ -64,16 +92,131 @@ interface Client {
 }
 
 // 특정 roomId의 채팅 내역 조회 API
-app.get("/chat/:roomId", async (req, res) => {
-  const { roomId } = req.params;
+app.get("/chat/:roomId/:otherUserId", async (req, res) => {
+  const { roomId, otherUserId } = req.params;
 
   try {
     const chatHistory = await getChatHistoryByRoomId(roomId);
-    res.json(chatHistory);
+    const nicknameProfile = await getUserNickNameProfileImgById(otherUserId);
+    res.json({
+      chatListData: chatHistory,
+      profileIndex: nicknameProfile.profile_image_index,
+    });
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });
     }
+  }
+});
+
+const mongoClient = new MongoClient(process.env.DATABASE_URL!); // MongoDB 연결 설정
+
+// 특정 roomId의 채팅 내역 조회 API
+app.get("/chat/unread/cnt/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  // SSE 헤더 설정
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders(); // 헤더 전송
+
+  // 사용자 정보가 있으면 최초 데이터를 클라이언트로 전송
+  const cnt = await getUnreadMessagesCountByUser(userId);
+  if (cnt) {
+    res.write(`data: ${JSON.stringify({ cnt: cnt })}\n\n`);
+  }
+
+  try {
+    await mongoClient.connect();
+    const db = mongoClient.db();
+    const changeStream = db.collection("UserUnread").watch([
+      {
+        $match: {
+          operationType: { $in: ["insert", "update"] }, // insert와 update를 모두 감지
+        },
+      },
+    ]);
+
+    changeStream.on("change", async (change) => {
+      // updateDescription에서 변경된 필드 확인
+      if (change.operationType === "insert") {
+        const document = await getUnreadDataById(
+          change.documentKey._id.toString()
+        );
+        if (document && document.user_id === userId) {
+          const cnt = document.unread_msg_cnt;
+          try {
+            res.write(`data: ${JSON.stringify({ cnt })}\n\n`);
+          } catch (error) {
+            if (error instanceof Error) {
+              res.write(
+                `event: error\ndata: ${JSON.stringify({
+                  error: error.message,
+                })}\n\n`
+              );
+            } else {
+              res.write(
+                `event: error\ndata: ${JSON.stringify({
+                  error: "An unknown error occurred",
+                })}\n\n`
+              );
+            }
+          }
+        }
+      }
+      if (change.operationType === "update" && change.updateDescription) {
+        const updatedFields = change.updateDescription.updatedFields;
+
+        // unread_msg_cnt가 변경된 경우
+        if (updatedFields && updatedFields.unread_msg_cnt !== undefined) {
+          {
+            const document = await getUnreadDataById(
+              change.documentKey._id.toString()
+            );
+            // user_id가 특정 값과 일치하는지 확인
+            if (document && document.user_id === userId) {
+              const cnt = document.unread_msg_cnt;
+              try {
+                res.write(`data: ${JSON.stringify({ cnt })}\n\n`);
+              } catch (error) {
+                if (error instanceof Error) {
+                  res.write(
+                    `event: error\ndata: ${JSON.stringify({
+                      error: error.message,
+                    })}\n\n`
+                  );
+                } else {
+                  res.write(
+                    `event: error\ndata: ${JSON.stringify({
+                      error: "An unknown error occurred",
+                    })}\n\n`
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // `watch` 메서드에서 오류 발생 시 처리
+    changeStream.on("error", (err) => {
+      console.error("Change Stream error:", err);
+      res.write(
+        `event: error\ndata: ${JSON.stringify({ error: err.message })}\n\n`
+      );
+    });
+
+    // 클라이언트가 연결을 끊으면 Change Stream을 닫음
+    req.on("close", () => {
+      changeStream.close();
+      res.end();
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to start SSE with MongoDB Change Stream" });
   }
 });
 
@@ -95,16 +238,22 @@ app.get("/nickname/:userId", async (req, res) => {
 app.post(
   "/register/nickname",
   async (req: Request, res: Response): Promise<void> => {
-    const { user_id, user_nickname } = req.body;
+    const { user_id, user_nickname, profile_image_index } = req.body;
 
     // 필수 필드 체크
-    if (!user_id || !user_nickname) {
-      res.status(400).json({ error: "user_id와 user_nickname이 필요합니다." });
+    if (!user_id || !user_nickname || !profile_image_index) {
+      res.status(400).json({
+        error: "user_id와 user_nickname,profile_image_index이 필요합니다.",
+      });
       return;
     }
 
     try {
-      const newUser = await createUserIdNickName(user_id, user_nickname);
+      const newUser = await createUserIdNickName(
+        user_id,
+        user_nickname,
+        profile_image_index
+      );
       res
         .status(201)
         .json({ message: "닉네임이 성공적으로 등록되었습니다.", newUser });
@@ -146,27 +295,35 @@ io.on("connection", (socket) => {
   });
 
   socket.on("message", async ({ senderId, targetId, message }) => {
-    const roomId = await getOrCreateChatRoom([senderId, targetId]);
+    const { roomId, isFirstMsg } = await getOrCreateChatRoom([
+      senderId,
+      targetId,
+    ]);
     let chat = await createChat(roomId, senderId, message);
     const targetName = await getUserNickNameById(targetId);
     const senderName = await getUserNickNameById(senderId);
     chat.sender = senderName;
 
-    const unreadData = await updateChatUnread(targetId, roomId);
+    await updateChatUnread(targetId, roomId);
+    await upsertUserUnRaedTable(targetId);
     const senderUnread = await getChatRoomInfoByUserId(senderId);
     const targetUnread = await getChatRoomInfoByUserId(targetId);
+    //우종, 혜수님한테 보냈는데, 채팅방이 사라졌고, 혜수님한테 온골로 왔는데 혜수님인데 테스트1로 안녕하세요.
+    console.log(targetName + " 그리고 ", senderName);
+    sendMessage(chat, targetId, targetUnread, targetName, false, roomId);
 
-    console.log("unreadData");
-    console.log(unreadData);
-    sendMessage(chat, targetId, targetUnread, targetName);
-    sendMessage(chat, senderId, senderUnread, senderName);
+    sendMessage(chat, senderId, senderUnread, senderName, isFirstMsg, roomId);
   });
 
   socket.on("message-read", async ({ unreadChatIds, roomId, userId }) => {
-    const cnt = await markChatsAsRead(unreadChatIds);
-    const updatedUnread = await updateChatUnreadByCnt(userId, roomId, cnt);
+    const { count, sender } = await markChatsAsRead(unreadChatIds);
+    await updateChatUnreadByCnt(userId, roomId, count);
+    const newCount = await getUnreadMessagesCountByUser(userId);
+    await updateUnRaedTable(userId, newCount);
     const rooms = await getChatRoomInfoByUserId(userId);
+    const senderRooms = await getChatRoomInfoByUserId(sender);
     sendChatRoomData(userId, rooms, unreadChatIds);
+    sendChatRoomData(sender, senderRooms, unreadChatIds);
   });
 
   // 클라이언트가 연결 종료 시 처리
@@ -209,20 +366,32 @@ function sendChatRoomData(
     console.log(`대상 사용자 ${targetId}를 찾을 수 없습니다.`);
   }
 }
+
+interface messageData {
+  chat: Chat;
+  targetName: string;
+  unreadData: UnreadData[];
+  roomId?: string;
+}
 // 1:1 메시지 전송 함수
 function sendMessage(
   chat: Chat,
   targetId: string,
   unreadData: UnreadData[],
-  targetName: string
+  targetName: string,
+  isFirstMsg: boolean,
+  roomId: string
 ) {
   const targetClient = clients.get(targetId);
   if (targetClient) {
-    targetClient.socket.emit("message", {
-      chat,
-      targetName,
-      unreadData,
-    });
+    const messageData: messageData = { chat, targetName, unreadData };
+
+    // roomId가 존재할 때만 messageData에 추가
+    if (isFirstMsg) {
+      messageData.roomId = roomId;
+    }
+
+    targetClient.socket.emit("message", messageData);
     console.log(`사용자 ${chat.sender}가 ${targetId}에게 메시지 전송`);
   } else {
     console.log(`대상 사용자 ${targetId}를 찾을 수 없습니다.`);

@@ -44,7 +44,13 @@ model UserNickName {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB 고유 식별자
   user_id        String 
   user_nickname  String
-
+  profile_image_index Int
   @@index([user_id], name: "idx_user_id")         // 채팅방별 인덱스
 
+}
+
+model UserUnread {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB 고유 식별자
+  user_id        String   @unique // user_id를 유니크 필드로 설정
+  unread_msg_cnt Int?     @default(0)
 }
